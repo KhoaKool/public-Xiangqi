@@ -1,0 +1,63 @@
+name: "May Cay Tu Dong - Tchess 1.9"
+on: [workflow_dispatch]
+jobs:
+  build-and-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lay Source Code
+        uses: actions/checkout@v4
+
+      - name: Cai dat moi truong (Java 21)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Tu Dong Viet Hoa va Fix Loi (Senior Dev Script)
+        run: |
+          cat << 'EOF' > patch.py
+          import os, re
+          i18n = {
+              "加载引擎": "Tải Engine", "引擎": "Engine", "对弈": "Đối cục", 
+              "分析": "Phân tích", "棋谱": "Kỳ phổ", "连线": "Kết nối Auto", 
+              "开局库": "Khai cuộc", "设置": "Cài đặt", "翻转棋盘": "Đảo bàn cờ", 
+              "停止": "Dừng", "文件": "Tệp", "保存": "Lưu", 
+              "新对局": "Ván mới", "撤销": "Đi lại", "认输": "Đầu hàng",
+              "浅色模式": "Giao diện Sáng", "深色模式": "Giao diện Tối", 
+              "退出": "Thoát", "关于": "Thông tin", "复制FEN": "Copy FEN"
+          }
+          for root, dirs, files in os.walk("src"):
+              if "assets" in root or "images" in root: continue
+              for file in files:
+                  if not file.endswith((".java", ".fxml", ".properties")): continue
+                  path = os.path.join(root, file)
+                  with open(path, "r", encoding="utf-8") as f: c = f.read()
+                  orig = c
+                  
+                  # Dịch UI sang tiếng Việt
+                  for zh, vi in i18n.items(): c = c.replace(zh, vi)
+                  
+                  # Fix lỗi nhận diện màn hình (DPI & độ nhạy)
+                  c = re.sub(r'(confidence\s*=\s*)0\.9[0-9]', r'\g<1>0.85', c)
+                  c = re.sub(r'(threshold\s*=\s*)0\.9[0-9]', r'\g<1>0.85', c)
+                  
+                  if c != orig:
+                      with open(path, "w", encoding="utf-8") as f: f.write(c)
+          
+          # Nâng version lên 1.9
+          if os.path.exists("pom.xml"):
+              with open("pom.xml", "r", encoding="utf-8") as f: pom = f.read()
+              pom = pom.replace("<version>1.8</version>", "<version>1.9</version>")
+              with open("pom.xml", "w", encoding="utf-8") as f: f.write(pom)
+          EOF
+          python patch.py
+
+      - name: Xay dung ung dung (Maven Build)
+        run: mvn clean package -DskipTests
+
+      - name: Xay kho chua thanh pham (.jar)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tchess-1.9-TiengViet
+          path: target/*.jar
