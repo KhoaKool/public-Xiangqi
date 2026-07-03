@@ -35,17 +35,17 @@ jobs:
                   with open(path, "r", encoding="utf-8") as f: c = f.read()
                   orig = c
                   
-                  # Dịch UI sang tiếng Việt
+                  # Dịch UI
                   for zh, vi in i18n.items(): c = c.replace(zh, vi)
                   
-                  # Fix lỗi nhận diện màn hình (DPI & độ nhạy)
+                  # Fix nhạy bén quân cờ (Threshold)
                   c = re.sub(r'(confidence\s*=\s*)0\.9[0-9]', r'\g<1>0.85', c)
                   c = re.sub(r'(threshold\s*=\s*)0\.9[0-9]', r'\g<1>0.85', c)
                   
                   if c != orig:
                       with open(path, "w", encoding="utf-8") as f: f.write(c)
           
-          # Nâng version lên 1.9
+          # Nâng version
           if os.path.exists("pom.xml"):
               with open("pom.xml", "r", encoding="utf-8") as f: pom = f.read()
               pom = pom.replace("<version>1.8</version>", "<version>1.9</version>")
@@ -60,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Tchess-1.9-TiengViet
-          path: target/*.jar
+          path: target/*-jar-with-dependencies.jar
