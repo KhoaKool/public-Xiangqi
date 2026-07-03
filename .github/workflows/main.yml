@@ -60,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Tchess-1.9-TiengViet
-          path: target/*-jar-with-dependencies.jar
+          path: target/*.jar
