@@ -54,8 +54,8 @@ jobs:
           python patch.py
 
       - name: Xay dung ung dung (Maven Build)
-        # Đã thêm khuôn: -DdescriptorId=jar-with-dependencies
-        run: mvn clean package assembly:single -DdescriptorId=jar-with-dependencies -DskipTests
+        # Cháu đã sửa "Id" thành "Refs" (có chữ s) để nó nhận diện khuôn mặc định
+        run: mvn clean package assembly:single -DdescriptorRefs=jar-with-dependencies -DskipTests
 
       - name: Xay kho chua thanh pham (.jar)
         uses: actions/upload-artifact@v4
