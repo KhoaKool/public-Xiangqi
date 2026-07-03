@@ -54,10 +54,13 @@ jobs:
           python patch.py
 
       - name: Xay dung ung dung (Maven Build)
-        run: mvn clean package -DskipTests
+        # Ép dùng lệnh assembly:single để tạo file trọn gói
+        run: mvn clean compile assembly:single -DskipTests
 
       - name: Xay kho chua thanh pham (.jar)
         uses: actions/upload-artifact@v4
         with:
           name: Tchess-1.9-TiengViet
-          path: target/*.jar
+          # Đổi tên file săn lùng thành loại chứa đủ phụ tùng
+          path: target/*-dependencies.jar
+          if-no-files-found: error
